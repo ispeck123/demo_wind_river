@@ -1,0 +1,135 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: esentinel-api-vm
+  namespace: default
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: esentinel-api
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+        resources:
+          requests:
+            memory: 2Gi
+            cpu: 2
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: esentinel_windriver_backend:v1
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              write_files:
+                - path: /app/appsettings.json
+                  content: |
+                    {"STREAMING_SERVER": "http://{endpoint_of_streaming_service}:7501/"}
+              runcmd:
+                - mkdir -p /app/Images
+                - mount --bind /mnt/data/alert_images /app/Images
+      interfaces:
+        - name: default
+          bridge: {}
+      networks:
+        - name: default
+          pod: {}
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: esentinel-stream-vm
+  namespace: default
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: esentinel-stream
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+          gpus:
+            - name: nvidia-gpu
+        resources:
+          requests:
+            memory: 4Gi
+            cpu: 2
+            nvidia.com/gpu: 1
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: windriver_streaming_backend:v1
+      interfaces:
+        - name: default
+          bridge: {}
+      networks:
+        - name: default
+          pod: {}
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: esentinel-client-vm
+  namespace: default
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: esentinel-client
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+        resources:
+          requests:
+            memory: 2Gi
+            cpu: 2
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: ispeck1/windriver_esentinel_frontend:v1
+        - name: nginx-conf
+          configMap:
+            name: nginx-config
+      interfaces:
+        - name: default
+          bridge: {}
+      networks:
+        - name: default
+          pod: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: default
+  labels:
+    app: esentinel-client
+data:
+  default.conf: |
+    server {
+      listen 80;
+      location / {
+        root /usr/share/nginx/html;
+        index index.html;
+      }
+    }
