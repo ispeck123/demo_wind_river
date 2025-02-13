@@ -2,7 +2,7 @@ Steps to Use the application:
 
     After successfully deploying the services using the steps written in README.md, start using the application. Follow the steps below:
         
-        o. Go to the browser and open the url on which you hosted the application.
+        o. Go to the browser and open the url on which you hosted the frontend application.
 
         o. Login using the credentials:
             Username - sysadmin
