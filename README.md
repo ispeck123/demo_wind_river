@@ -44,10 +44,16 @@
 
 3. Configure the YAML files within model folder.
 
-    o. Configure the values of the environmet variables (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_SCHEMA,    pipeline_id, DIRECTORY_SAVE_IMAGE) under 'env' section. 
-    Note that, the pipeline_id you are using in environment variable, should be in database. Otherwise the model will not work or you will not get any alert.
+    A. Configure 'intrution.yaml', 'people_count.yaml', 'ppe.yaml':
 
-    o. Configure the hostPaths of the volume named 'image-output' under 'volumes' section. Give a path of your host machine, where you want the alert images to be saved.
+        o. Configure the values of the environmet variables (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_SCHEMA, pipeline_id) under 'env' section. 
+        Note that, the pipeline_id you are using in environment variable, should be in database. Otherwise the model will not work or you will not get any alert.
+
+        o. Configure the hostPaths of the volume named 'image-output' under 'volumes' section. Give a path of your host machine, where you want the alert images to be saved.
+    
+    B. Configure 'alert_schedular.yaml':
+
+        o. Configure the values of the environment variables (database_host, database_port, database_user, database_pass, database_schema)
 
 4. Deploy services:
 
@@ -58,6 +64,7 @@
         o. ispeck1/windriver_pc:v1
         o. ispeck1/windriver_ppe:v1
         o. ispeck1/windriver_intrution:v1
+        o. ispeck1/windriver-alertschedular:v1
     
     B. Create a JSON file named 'appsettings.json' with the content below.
         Configure the "ConnectionStrings", "Auth" and "SMTPServer" with your credentials:

@@ -1,0 +1,62 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachineInstance
+metadata:
+  name: windriver-alert-schedular-vm
+  labels:
+    kubevirt.io/vm: alert-schedular-vm
+spec:
+  domain:
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 1
+  terminationGracePeriodSeconds: 30
+  volumes:
+    - name: container-disk
+      containerDisk:
+        image: quay.io/containerdisks/ubuntu:22.04
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: windriver-alert-schedular-pod
+  labels:
+    app: windriver-alert-schedular
+spec:
+  containers:
+    - name: windriver-alert-schedular
+      image: ispeck1/windriver-alertschedular:v1
+      env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: database_host
+          value: "127.0.0.1"
+        - name: database_port
+          value: "3306"
+        - name: database_user
+          value: "user"
+        - name: database_pass
+          value: "password"
+        - name: database_schema
+          value: "schema"
+        - name: alert_interval
+          value: "10"
+        - name: transaction_table_name
+          value: "event_transactions"
+        - name: alert_table_name
+          value: "alert"
+        - name: event_category_table_name
+          value: "event_category"
+      volumeMounts:
+        - mountPath: /etc/localtime
+          name: localtime
+          readOnly: true
+      resources:
+        limits:
+          cpu: "1"
+          memory: "2Gi"
+  restartPolicy: Always
+  volumes:
+    - name: localtime
+      hostPath:
+        path: /etc/localtime
