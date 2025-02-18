@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esentinel-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: esentinel-api
+  template:
+    metadata:
+      labels:
+        app: esentinel-api
+    spec:
+      containers:
+        - name: esentinel-api
+          image: ispeck1/esentinel_windriver_backend:v1
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: STREAMING_SERVER
+              value: "http://{minikube_ip}:{node_port}/"
+          volumeMounts:
+            - name: alert-images-volume
+              mountPath: /app/Images
+            - name: appsettings-volume
+              mountPath: /app/appsettings.json
+              subPath: appsettings.json
+      volumes:
+        - name: alert-images-volume
+          hostPath:
+            path: configure/path/to/alerts
+            type: Directory
+        - name: appsettings-volume
+          hostPath:
+            path: configure/path/to/appsettings.json
+            type: File
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: esentinel-api-service
+spec:
+  type: NodePort
+  selector:
+    app: esentinel-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 31115
