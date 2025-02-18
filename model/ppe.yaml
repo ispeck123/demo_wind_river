@@ -1,94 +1,84 @@
-apiVersion: kubevirt.io/v1
-kind: VirtualMachineInstance
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: ppe-detection-vm
-  labels:
-    kubevirt.io/vm: windriver-ppe-detection-vm
-spec:
-  domain:
-    devices:
-      gpus:
-        - deviceName: nvidia.com/gpu
-    resources:
-      requests:
-        memory: 4Gi
-        cpu: 2
-  terminationGracePeriodSeconds: 30
-  volumes:
-    - name: container-disk
-      containerDisk:
-        image: quay.io/containerdisks/ubuntu:20.04
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: windriver-ppe-detection-pod
+  name: windriver-ppe-detection-deployment
   labels:
     app: windriver-ppe-detection
 spec:
-  runtimeClassName: nvidia
-  containers:
-    - name: windriver-ppe-detection
-      image: ispeck1/windriver_ppe:v1
-      env:
-        - name: DB_HOST
-          value: "127.0.0.1"
-        - name: DB_PORT
-          value: "3306"
-        - name: DB_USER
-          value: "user"
-        - name: DB_PASSWORD
-          value: "password"
-        - name: DB_SCHEMA
-          value: "schema"
-        - name: pipeline_id
-          value: "609"
-        - name: TABLE_CAM_MASTER
-          value: "camera"
-        - name: TABLE_CLASS_MASTER
-          value: "class"
-        - name: TABLE_MODEL_MASTER
-          value: "model"
-        - name: TABLE_OBJECT_INSIGHT
-          value: "event_transactions"
-        - name: TABLE_PIPELINE_MASTER
-          value: "pipeline"
-        - name: TABLE_PIPELINE_CLASS_MAP
-          value: "pipeline_class_map"
-        - name: INSIGHTS_UPDATE_MODE_TIME_INTERVAL
-          value: "5"
-        - name: SAVE_IMAGE
-          value: "True"
-        - name: SHOW_IMAGE
-          value: "True"
-        - name: DIRECTORY_SAVE_IMAGE
-          value: "OUT"
-        - name: SAVE_INSIGHT
-          value: "True"
-        - name: SKIP_FRAMES
-          value: "5"
-        - name: MODEL_WEIGHT
-          value: "weights/yolov6m.pt"
-        - name: MODEL_CLASS_YML
-          value: "data/coco.yaml"
-        - name: MODEL_ALERT_CLASS_LIST
-          value: "['Helmet detected', 'Vest detected', 'Gloves detected']"
-        - name: ROI
-          value: "[]"
-        - name: TIMEZONE_CONVERT
-          value: "Asia/Singapore"
-      volumeMounts:
-        - mountPath: /var/run/docker.sock
-          name: docker-sock
-        - mountPath: /engine/OUT
-          name: image-output
-      resources:
-        limits:
-          nvidia.com/gpu: 1
-  volumes:
-    - name: docker-sock
-      hostPath:
-        path: /var/run/docker.sock
-    - name: image-output
-      hostPath:
-        path: /path/to/directory/alert_images
+  replicas: 1
+  selector:
+    matchLabels:
+      app: windriver-ppe-detection
+  template:
+    metadata:
+      labels:
+        app: windriver-ppe-detection
+    spec:
+      runtimeClassName: nvidia
+      containers:
+        - name: windriver-ppe-detection
+          image: ispeck1/windriver_ppe:v1
+          env:
+            - name: DB_HOST
+              value: "127.0.0.1"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USER
+              value: "user"
+            - name: DB_PASSWORD
+              value: "password"
+            - name: DB_SCHEMA
+              value: "schema"
+            - name: pipeline_id
+              value: "609"
+            - name: TABLE_CAM_MASTER
+              value: "camera"
+            - name: TABLE_CLASS_MASTER
+              value: "class"
+            - name: TABLE_MODEL_MASTER
+              value: "model"
+            - name: TABLE_OBJECT_INSIGHT
+              value: "event_transactions"
+            - name: TABLE_PIPELINE_MASTER
+              value: "pipeline"
+            - name: TABLE_PIPELINE_CLASS_MAP
+              value: "pipeline_class_map"
+            - name: INSIGHTS_UPDATE_MODE_TIME_INTERVAL
+              value: "5"
+            - name: SAVE_IMAGE
+              value: "True"
+            - name: SHOW_IMAGE
+              value: "True"
+            - name: DIRECTORY_SAVE_IMAGE
+              value: "OUT"
+            - name: SAVE_INSIGHT
+              value: "True"
+            - name: SKIP_FRAMES
+              value: "5"
+            - name: MODEL_WEIGHT
+              value: "weights/yolov6m.pt"
+            - name: MODEL_CLASS_YML
+              value: "data/coco.yaml"
+            - name: MODEL_ALERT_CLASS_LIST
+              value: "['Helmet detected', 'Vest detected', 'Gloves detected']"
+            - name: ROI
+              value: "[]"
+            - name: TIMEZONE_CONVERT
+              value: "Asia/Singapore"
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: docker-sock
+            - mountPath: /engine/OUT
+              name: image-output
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+
+      volumes:
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+        - name: image-output
+          hostPath:
+            path: /path/to/directory/alert_images
+
