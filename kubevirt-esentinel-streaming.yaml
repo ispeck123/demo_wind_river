@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esentinel-stream-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: esentinel-stream
+  template:
+    metadata:
+      labels:
+        app: esentinel-stream
+    spec:
+      containers:
+        - name: esentinel-stream-container
+          image: ispeck1/windriver_streaming_backend:v1
+          ports:
+            - containerPort: 7501
+          resources:
+            requests:
+              memory: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: esentinel-stream-service
+spec:
+  type: NodePort
+  selector:
+    app: esentinel-stream
+  ports:
+    - protocol: TCP
+      port: 7501
+      targetPort: 7501
+      nodePort: 32051
