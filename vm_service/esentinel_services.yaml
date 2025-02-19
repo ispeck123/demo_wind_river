@@ -1,0 +1,40 @@
+version: '3.7'
+services:
+  esentinel_api:
+    image: ispeck1/esentinel_windriver_backend:v1
+    ports:
+      - 11115:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - STREAMING_SERVER=http://{VM_IP}:7501/
+    volumes:
+      - /path/to/alert_images:/app/Images
+      - /path/to/appsettings.json:/app/appsettings.json
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  esentinel_stream:
+    image: ispeck1/windriver_streaming_backend:v1
+    ports:
+      - 7501:7501
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+  esentinel_client:
+    image: ispeck1/windriver_esentinel_frontend:v1
+    volumes:
+      - /path/to/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    #  - esentinel_rtsp
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure # if gpu is present otherwise comment out this section
