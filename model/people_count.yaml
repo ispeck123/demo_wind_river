@@ -70,9 +70,9 @@ spec:
               name: docker-sock
             - mountPath: /engine/OUT
               name: image-output
-          resources:
-            limits:
-              nvidia.com/gpu: 1
+          #resources:
+          #  limits:
+          #    nvidia.com/gpu: 1 # To use GPU , Uncomment These lines
       volumes:
         - name: docker-sock
           hostPath:
