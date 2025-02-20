@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   orchestrator:
-    image: ispeck1/windriver_containerschedular:v2
+    image: ispeck1/esentinel_containerschedular:v2
     environment:
       NVIDIA_VISIBLE_DEVICES: all
       PYTHONUNBUFFERED: 1
