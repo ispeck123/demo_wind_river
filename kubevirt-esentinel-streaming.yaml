@@ -20,6 +20,17 @@ spec:
           resources:
             requests:
               memory: 2Gi
+          env:
+            - name: DB_HOST
+              value: "your-db-host"
+            - name: DB_PORT
+              value: "your-db-port"
+            - name: DB_USER
+              value: "your-db-user"
+            - name: DB_PASSWORD
+              value: "your-db-password"
+            - name: DB_SCHEMA
+              value: "your-db-schema"
 ---
 apiVersion: v1
 kind: Service
