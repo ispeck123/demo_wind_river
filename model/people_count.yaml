@@ -14,7 +14,6 @@ spec:
       labels:
         app: windriver-people-count
     spec:
-      runtimeClassName: nvidia
       containers:
         - name: windriver-people-count
           image: ispeck1/windriver_pc:v1
@@ -60,7 +59,7 @@ spec:
             - name: MODEL_CLASS_YML
               value: "data/coco.yaml"
             - name: MODEL_ALERT_CLASS_LIST
-              value: "['Person detected']"
+              value: '["Person detected"]'
             - name: ROI
               value: "[]"
             - name: TIMEZONE_CONVERT
@@ -70,13 +69,14 @@ spec:
               name: docker-sock
             - mountPath: /engine/OUT
               name: image-output
-          #resources:
-          #  limits:
-          #    nvidia.com/gpu: 1 # To use GPU , Uncomment These lines
+          resources:
+            limits:
+              nvidia.com/gpu: 1  # Ensure GPU is allocated
+
       volumes:
         - name: docker-sock
           hostPath:
             path: /var/run/docker.sock
         - name: image-output
           hostPath:
-            path: /path/to/directory/alert_images
+            path: /esentinel/alert_images  # Fixed path like previous config
