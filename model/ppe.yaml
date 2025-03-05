@@ -5,7 +5,7 @@ metadata:
   labels:
     app: windriver-ppe-detection
 spec:
-  replicas: 1
+  replicas: 1  # Uncomment to ensure a pod is created
   selector:
     matchLabels:
       app: windriver-ppe-detection
@@ -14,21 +14,22 @@ spec:
       labels:
         app: windriver-ppe-detection
     spec:
-      runtimeClassName: nvidia
       containers:
         - name: windriver-ppe-detection
           image: ispeck1/windriver_ppe:v1
           env:
+            - name: RTSP_URL
+              value: "rtsp://admin:Secure369@165.21.14.98:554/Streaming/Channels/1401"
             - name: DB_HOST
-              value: "127.0.0.1"
+              value: "43.230.202.167"
             - name: DB_PORT
               value: "3306"
             - name: DB_USER
-              value: "user"
+              value: "ispeck"
             - name: DB_PASSWORD
-              value: "password"
+              value: "Root#1234"
             - name: DB_SCHEMA
-              value: "schema"
+              value: "power_automation_mod"
             - name: pipeline_id
               value: "609"
             - name: TABLE_CAM_MASTER
@@ -54,31 +55,23 @@ spec:
             - name: SAVE_INSIGHT
               value: "True"
             - name: SKIP_FRAMES
-              value: "5"
+              value: "1"
             - name: MODEL_WEIGHT
               value: "weights/yolov6m.pt"
             - name: MODEL_CLASS_YML
               value: "data/coco.yaml"
-            - name: MODEL_ALERT_CLASS_LIST
-              value: "['Helmet detected', 'Vest detected', 'Gloves detected']"
             - name: ROI
               value: "[]"
             - name: TIMEZONE_CONVERT
               value: "Asia/Singapore"
           volumeMounts:
-            - mountPath: /var/run/docker.sock
-              name: docker-sock
             - mountPath: /engine/OUT
               name: image-output
-          #resources:
-          #  limits:
-          #    nvidia.com/gpu: 1 # To use GPU, Uncomment This lines
+          resources:
+            limits:
+              nvidia.com/gpu: 1  # Ensure NVIDIA GPU is available
 
       volumes:
-        - name: docker-sock
-          hostPath:
-            path: /var/run/docker.sock
         - name: image-output
           hostPath:
-            path: /path/to/directory/alert_images
-
+            path: /esentinel/alert_images
