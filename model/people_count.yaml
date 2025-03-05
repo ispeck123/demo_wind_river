@@ -18,6 +18,8 @@ spec:
         - name: windriver-people-count
           image: ispeck1/windriver_pc:v1
           env:
+            - name: RTSP_URL
+              value: "your RTSP URL"
             - name: DB_HOST
               value: "127.0.0.1"
             - name: DB_PORT
@@ -53,7 +55,7 @@ spec:
             - name: SAVE_INSIGHT
               value: "True"
             - name: SKIP_FRAMES
-              value: "5"
+              value: "2"
             - name: MODEL_WEIGHT
               value: "weights/yolov6m.pt"
             - name: MODEL_CLASS_YML
