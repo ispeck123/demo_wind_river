@@ -31,7 +31,7 @@ spec:
             - name: DB_SCHEMA
               value: "power_automation_mod"
             - name: pipeline_id
-              value: "609"
+              value: "905"
             - name: TABLE_CAM_MASTER
               value: "camera"
             - name: TABLE_CLASS_MASTER
